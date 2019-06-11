@@ -1,7 +1,7 @@
 from bson import ObjectId
 from app.tasks.models import room_request, room_record
 from app.utils.db_utils import Base
-from app.utils.helper import custom_marshal
+from app.utils.helper import custom_marshal, update_timestamp
 from app.common.constants import COLLECTIONS
 
 base_obj = Base()
@@ -51,8 +51,10 @@ class TaskService(object):
         :param payload:
         :return:
         """
+        payload = update_timestamp()
+        payload["meta.is_archived"], payload["meta.is_deleted"] = True, False
         base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
-                        {"$set": {"meta.is_archived": True, "meta.is_deleted": False}})
+                        {"$set": payload})
 
     def delete_room(self, id):
         """
@@ -60,8 +62,10 @@ class TaskService(object):
         :param payload:
         :return:
         """
+        payload = update_timestamp()
+        payload["meta.is_archived"], payload["meta.is_deleted"] = False, True
         base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
-                        {"$set": {"meta.is_deleted": True, "meta.is_archived": False}})
+                        {"$set": payload})
 
     def change_status(self, id):
         """
@@ -69,5 +73,7 @@ class TaskService(object):
         :param id:
         :return:
         """
+        payload = update_timestamp()
+        payload["meta.is_archived"], payload["meta.is_deleted"] = False, False
         base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
-                        {"$set": {"meta.is_deleted": False, "meta.is_archived": False}})
+                        {"$set": payload})
