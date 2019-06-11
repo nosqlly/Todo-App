@@ -1,9 +1,18 @@
 import os
+from datetime import timedelta
 
 class Config(object):
     APP_ROOT = os.path.dirname(os.path.abspath(__file__))
     SECRET_KEY = os.getenv('SECRET_KEY', 'My-Precious-Key')
-
+    JWT_SECRET_KEY = SECRET_KEY
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=7)
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
+    REDIS_HOST = os.getenv('REDIS_HOST', '0.0.0.0')
+    REDIS_PORT = os.getenv('REDIS_HOST', 6379)
+    REDIS_DB = os.getenv('REDIS_DB', 0)
+    ERROR_INCLUDE_MESSAGE = False
 
 class Development(Config):
     DEBUG = True

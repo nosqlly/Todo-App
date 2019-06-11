@@ -4,7 +4,8 @@ from flask import Flask
 from flask_restplus import Api
 from pymongo import MongoClient
 from flask_mail import Mail
-
+from flask_jwt_extended import JWTManager
+from redis import StrictRedis
 
 #Create Flask App Object
 application = Flask(__name__)
@@ -28,3 +29,26 @@ logger = logging.getLogger()
 
 #Create api object for flask restplus
 api = Api(application, title='Todo App', description='Todo App', version=1.0)
+
+#JWT extension setup
+jwt = JWTManager(application)
+
+#Redis DB object
+redis_store = StrictRedis(host=application.config['REDIS_HOST'],
+                          port=application.config['REDIS_PORT'],
+                          db=application.config['REDIS_DB'],
+                          decode_responses=True)
+
+@jwt.token_in_blacklist_loader
+def check_if_token_is_revoked(decrypted_token):
+    jti = decrypted_token['jti']
+    entry = redis_store.get(jti)
+    if entry is None:
+        return True
+    return entry == 'true'
+
+@api.errorhandler(Exception)
+def handle_error(e):
+    code = e.code
+    message = e.__str__
+    return {"status": code, "message": message}, code
