@@ -15,3 +15,11 @@ def custom_marshal(model, template, option='create'):
         data['meta.updated_on'] = get_current_time()
         data['meta.updated_by'] = email
     return data
+
+
+def update_timestamp():
+    email = get_jwt_identity()
+    data = {}
+    data['meta.updated_on'] = get_current_time()
+    data['meta.updated_by'] = email
+    return data
