@@ -1,7 +1,6 @@
-from flask_restplus import fields
+from flask_restplus import fields, reqparse
 from app import api
 from app.utils.date_utils import get_current_time
-
 
 meta = api.model('meta', {
     'is_deleted': fields.Boolean(default=False),
@@ -10,3 +9,6 @@ meta = api.model('meta', {
     'created_by': fields.String(default='user'),
     'updated_by': fields.String(default='user')
 })
+
+auth_parser = reqparse.RequestParser()
+auth_parser.add_argument('Authorization', location='headers')
