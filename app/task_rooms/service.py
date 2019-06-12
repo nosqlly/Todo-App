@@ -1,5 +1,5 @@
 from bson import ObjectId
-from app.tasks.models import room_request, room_record
+from app.task_rooms.models import room_request, room_record
 from app.utils.db_utils import Base
 from app.utils.helper import custom_marshal, update_timestamp
 from app.common.constants import COLLECTIONS
