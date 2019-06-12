@@ -6,19 +6,19 @@ from app.task_rooms.service import TaskRoomService
 from app.common.models import auth_parser
 from flask_jwt_extended import get_jwt_identity
 
-tasks_ns = Namespace('task', description="Room and todo task operations")
+taskrooms_ns = Namespace('task_room', description="Task Room operations")
 
 taskroom_service = TaskRoomService()
 
 
-@tasks_ns.expect(auth_parser)
-@tasks_ns.route('/rooms')
+@taskrooms_ns.expect(auth_parser)
+@taskrooms_ns.route('')
 class Rooms(Resource):
     """
     Create and Get Rooms
     """
     @jwt_required
-    @tasks_ns.expect(room_request)
+    @taskrooms_ns.expect(room_request)
     def post(self):
         """
         Create A Room
@@ -30,7 +30,7 @@ class Rooms(Resource):
         taskroom_service.create_room(payload)
         return {'Message': "Room created successfully"}
 
-    @tasks_ns.expect(state_parser)
+    @taskrooms_ns.expect(state_parser)
     @jwt_required
     def get(self):
         """
@@ -52,15 +52,15 @@ class Rooms(Resource):
         else:
             return False
 
-@tasks_ns.expect(auth_parser)
-@tasks_ns.route('/rooms/<string:id>')
+@taskrooms_ns.expect(auth_parser)
+@taskrooms_ns.route('/<string:id>')
 class RoomOperations(Resource):
     """
     Edit and Delete Rooms
     """
 
     @jwt_required
-    @tasks_ns.expect(room_request)
+    @taskrooms_ns.expect(room_request)
     def put(self, id):
         """
         Edit a Room Name
@@ -71,8 +71,8 @@ class RoomOperations(Resource):
         taskroom_service.update_room(id, payload)
         return {'Message': "Room updated successfully"}
 
-@tasks_ns.expect(auth_parser)
-@tasks_ns.route('/rooms/archive/<string:id>')
+@taskrooms_ns.expect(auth_parser)
+@taskrooms_ns.route('/archive/<string:id>')
 class RoomOperations(Resource):
     """
     Archive a room
@@ -89,8 +89,8 @@ class RoomOperations(Resource):
         return {'Message': "Room archived successfully"}
 
 
-@tasks_ns.expect(auth_parser)
-@tasks_ns.route('/rooms/delete/<string:id>')
+@taskrooms_ns.expect(auth_parser)
+@taskrooms_ns.route('/delete/<string:id>')
 class RoomOperations(Resource):
     """
     Delete Rooms
@@ -107,8 +107,8 @@ class RoomOperations(Resource):
         return {'Message': "Room deleted successfully"}
 
 
-@tasks_ns.expect(auth_parser)
-@tasks_ns.route('/rooms/undo/<string:id>')
+@taskrooms_ns.expect(auth_parser)
+@taskrooms_ns.route('/undo/<string:id>')
 class RoomOperations(Resource):
     """
     Move Rooms to Active Status
