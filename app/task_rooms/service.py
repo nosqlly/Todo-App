@@ -7,7 +7,7 @@ from app.common.constants import COLLECTIONS
 base_obj = Base()
 
 
-class TaskService(object):
+class TaskRoomService(object):
     """
     Service Class for Task
     """

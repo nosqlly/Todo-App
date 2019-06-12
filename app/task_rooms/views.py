@@ -2,13 +2,13 @@ from flask_restplus import Namespace, Resource, marshal
 from flask_jwt_extended import jwt_required
 from app import api
 from app.task_rooms.models import room_request, state_parser, room_response
-from app.task_rooms.service import TaskService
+from app.task_rooms.service import TaskRoomService
 from app.common.models import auth_parser
 from flask_jwt_extended import get_jwt_identity
 
 tasks_ns = Namespace('task', description="Room and todo task operations")
 
-tasks_service = TaskService()
+taskroom_service = TaskRoomService()
 
 
 @tasks_ns.expect(auth_parser)
@@ -27,7 +27,7 @@ class Rooms(Resource):
         email = get_jwt_identity()
         payload = api.payload
         payload['users'] = [email]
-        tasks_service.create_room(payload)
+        taskroom_service.create_room(payload)
         return {'Message': "Room created successfully"}
 
     @tasks_ns.expect(state_parser)
@@ -40,7 +40,7 @@ class Rooms(Resource):
         email = get_jwt_identity()
         args = state_parser.parse_args()
         if self.validate_state(args['State']):
-            response = tasks_service.get_rooms(email, state=args['State'])
+            response = taskroom_service.get_rooms(email, state=args['State'])
             return {'Message': "Rooms rendered successfully", 'records': marshal(response, room_response)}
         else:
             return {"Message": "State is not in (active|archived|deleted)"}
@@ -68,7 +68,7 @@ class RoomOperations(Resource):
         :return:
         """
         payload = api.payload
-        tasks_service.update_room(id, payload)
+        taskroom_service.update_room(id, payload)
         return {'Message': "Room updated successfully"}
 
 @tasks_ns.expect(auth_parser)
@@ -85,7 +85,7 @@ class RoomOperations(Resource):
         :param id:
         :return:
         """
-        tasks_service.archive_room(id)
+        taskroom_service.archive_room(id)
         return {'Message': "Room archived successfully"}
 
 
@@ -103,7 +103,7 @@ class RoomOperations(Resource):
         :param id:
         :return:
         """
-        tasks_service.delete_room(id)
+        taskroom_service.delete_room(id)
         return {'Message': "Room deleted successfully"}
 
 
@@ -121,5 +121,5 @@ class RoomOperations(Resource):
         :param id:
         :return:
         """
-        tasks_service.change_status(id)
+        taskroom_service.change_status(id)
         return {'Message': "Room status changed to Active"}
