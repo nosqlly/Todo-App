@@ -16,7 +16,7 @@ meta_tasks = api.inherit('meta_tasks', meta, {
 
 room_record = api.inherit('room_record', room_request, {
     'users': fields.List(fields.String),
-    'task_rooms': fields.List(fields.String),
+    'tasks': fields.List(fields.String),
     'meta': fields.Nested(meta_tasks)
 })
 
