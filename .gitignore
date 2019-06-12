@@ -3,3 +3,4 @@ env
 app.log
 environment_variables.sh
 *.pyc
+.idea*

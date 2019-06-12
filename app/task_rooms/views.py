@@ -1,8 +1,8 @@
 from flask_restplus import Namespace, Resource, marshal
 from flask_jwt_extended import jwt_required
 from app import api
-from app.tasks.models import room_request, state_parser, room_response
-from app.tasks.service import TaskService
+from app.task_rooms.models import room_request, state_parser, room_response
+from app.task_rooms.service import TaskService
 from app.common.models import auth_parser
 from flask_jwt_extended import get_jwt_identity
 
