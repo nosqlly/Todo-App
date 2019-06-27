@@ -1,6 +1,7 @@
 from flask_restplus import fields, reqparse
 from app import api
 from app.common.models import meta
+from app.task_rooms.tasks.models import task_response
 
 
 state_parser = reqparse.RequestParser()
@@ -16,10 +17,14 @@ meta_tasks = api.inherit('meta_tasks', meta, {
 
 room_record = api.inherit('room_record', room_request, {
     'users': fields.List(fields.String),
-    'tasks': fields.List(fields.String),
+    'tasks': fields.List(fields.Nested(task_response)),
     'meta': fields.Nested(meta_tasks)
 })
 
 room_response = api.inherit('room_response', room_record, {
     '_id': fields.String()
+})
+
+invite_user = api.model('invite_user', {
+    'email': fields.String(required=True, description='Enter Email ID')
 })

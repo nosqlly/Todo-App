@@ -27,3 +27,12 @@ Tutorial 2
 - Undo Archived and Deleted Rooms to Active Room
 
 https://nosqlly.com/full-stack-tutorial-todo-app-react-flask-mongodb-part-2/
+
+Tutorial 3
+- Create, Update, Archive and DeleteTasks
+- GET Active, Deleted and Archived Tasks
+- Undo Archived/Deleted task to Active task.
+- Add User to Task Room
+- Exit from a Task Room
+
+https://nosqlly.com/full-stack-tutorial-todo-app-react-flask-mongodb-part-3/
