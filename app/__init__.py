@@ -47,8 +47,3 @@ def check_if_token_is_revoked(decrypted_token):
         return True
     return entry == 'true'
 
-@api.errorhandler(Exception)
-def handle_error(e):
-    code = e.code
-    message = e.__str__
-    return {"status": code, "message": message}, code

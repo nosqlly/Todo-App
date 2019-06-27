@@ -1,4 +1,5 @@
 from bson import ObjectId
+from flask_restplus import abort
 from app.task_rooms.models import room_request, room_record
 from app.utils.db_utils import Base
 from app.utils.helper import custom_marshal, update_timestamp
@@ -77,3 +78,30 @@ class TaskRoomService(object):
         payload["meta.is_archived"], payload["meta.is_deleted"] = False, False
         base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
                         {"$set": payload})
+
+    def invite_user(self, id, email):
+        """
+        Invite User to the task room
+        :param id:
+        :param payload:
+        :return:
+        """
+        count, records = base_obj.get(COLLECTIONS['USERS'], {'email': email, "meta.is_deleted": False})
+        if count == 1:
+            if records[0]['is_active']:
+                base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
+                                {"$push": {'users': email}})
+            else:
+                abort(401, "Email ID is not active")
+        else:
+            abort(404, "Email ID does not exist")
+
+    def exit_task_room(self, id, email):
+        """
+        Exit from a task room
+        :param id:
+        :param email:
+        :return:
+        """
+        base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
+                        {"$pull": {'users': email}})

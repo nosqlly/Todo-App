@@ -45,3 +45,11 @@ class Base(object):
         except Exception as e:
             print('Exception while deleting records in  MongoDB', e)
             logger.debug('Exception while deleting records in MongoDB')
+
+    def aggregate(self, collection_name, query_list):
+        try:
+            cursor = self.mongo_db[collection_name].aggregate(query_list)
+            return list(cursor)
+        except Exception as e:
+            print('Exception while aggregating  MongoDB', e)
+            logger.debug('Exception while aggregating in MongoDB')
