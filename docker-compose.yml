@@ -13,6 +13,17 @@ services:
       MONGO_INITDB_ROOT_USERNAME: mongoadmin
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: todo_inventory
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    volumes:
+      - 'redis_data:/var/redis/data'
 
 volumes:
   db-data:
+  redis_data:
