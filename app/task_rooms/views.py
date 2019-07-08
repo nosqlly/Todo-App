@@ -25,7 +25,7 @@ class Rooms(Resource):
         :return:
         """
         email = get_jwt_identity()
-        payload = api.payload
+        payload = marshal(api.payload, room_request)
         payload['users'] = [email]
         payload['tasks'] = []
         taskroom_service.create_room(payload)
@@ -68,7 +68,7 @@ class RoomOperations(Resource):
         :param id:
         :return:
         """
-        payload = api.payload
+        payload = marshal(api.payload, room_request)
         taskroom_service.update_room(id, payload)
         return {'Message': "Room updated successfully"}
 
@@ -140,7 +140,7 @@ class RoomOperations(Resource):
         :param id:
         :return:
         """
-        payload = api.payload
+        payload = marshal(api.payload, invite_user)
         taskroom_service.invite_user(id, payload['email'])
         return {'Message': "User Added to the Task Room"}
 

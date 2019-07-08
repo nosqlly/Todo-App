@@ -10,7 +10,7 @@ class Config(object):
     JWT_BLACKLIST_ENABLED = True
     JWT_BLACKLIST_TOKEN_CHECKS = ['access', 'refresh']
     REDIS_HOST = os.getenv('REDIS_HOST', '0.0.0.0')
-    REDIS_PORT = os.getenv('REDIS_HOST', 6379)
+    REDIS_PORT = os.getenv('REDIS_PORT', 6379)
     REDIS_DB = os.getenv('REDIS_DB', 0)
     ERROR_INCLUDE_MESSAGE = False
 

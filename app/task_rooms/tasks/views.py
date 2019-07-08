@@ -46,7 +46,7 @@ class Tasks(Resource):
         Add a Task to the Task Room
         :return:
         """
-        payload = api.payload
+        payload = marshal(api.payload, task_request)
         tasks_service.create_task(id, payload)
         return {'status': "Task created successfully"}
 
@@ -64,7 +64,7 @@ class Tasks(Resource):
         :param id:
         :return:
         """
-        payload = api.payload
+        payload = marshal(api.payload, task_request)
         tasks_service.update_task(taskroom_id, task_id, payload)
         return {'status': "Task updated successfully"}
 

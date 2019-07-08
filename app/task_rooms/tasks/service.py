@@ -1,4 +1,5 @@
 from bson import ObjectId
+from flask_jwt_extended import get_jwt_identity
 from app.task_rooms.tasks.models import task_db_input, task_request
 from app.utils.db_utils import Base
 from app.utils.helper import custom_marshal, update_timestamp
@@ -17,13 +18,14 @@ class TasksService(object):
         :param id:
         :return:
         """
+        email = get_jwt_identity()
         if state == 'active':
             cond = {"$and": [{"$eq": ["$$task.meta.is_archived", False]}, {"$eq": ["$$task.meta.is_deleted", False]}]}
         elif state == 'archived':
             cond = {"$and": [{"$eq": ["$$task.meta.is_archived", True]}, {"$eq": ["$$task.meta.is_deleted", False]}]}
         elif state == 'deleted':
             cond = {"$and": [{"$eq": ["$$task.meta.is_archived", False]}, {"$eq": ["$$task.meta.is_deleted", True]}]}
-        query = [{"$match": {"_id": ObjectId(id)}},
+        query = [{"$match": {"_id": ObjectId(id), "users": email}},
                  {"$project":
                       {"tasks": {"$filter": {"input": "$tasks", "as": "task", "cond": cond}}}}]
         records = base_obj.aggregate(COLLECTIONS['ROOMS'], query)
@@ -49,8 +51,9 @@ class TasksService(object):
         :param payload:
         :return:
         """
+        email = get_jwt_identity()
         payload = custom_marshal(payload, task_request, 'update', prefix="tasks.$")
-        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id)},
+        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id), "users": email},
                                  {"$set": payload})
         print(payload, result)
 
@@ -62,9 +65,10 @@ class TasksService(object):
         :param payload:
         :return:
         """
+        email = get_jwt_identity()
         payload = update_timestamp(prefix="tasks.$")
         payload["tasks.$.meta.is_archived"], payload["tasks.$.meta.is_deleted"] = True, False
-        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id)},
+        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id), "users": email},
                                  {"$set": payload})
         print(payload, result)
 
@@ -76,9 +80,10 @@ class TasksService(object):
         :param payload:
         :return:
         """
+        email = get_jwt_identity()
         payload = update_timestamp(prefix="tasks.$")
         payload["tasks.$.meta.is_archived"], payload["tasks.$.meta.is_deleted"] = False, True
-        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id)},
+        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id), "users": email},
                                  {"$set": payload})
         print(payload, result)
 
@@ -90,8 +95,9 @@ class TasksService(object):
         :param payload:
         :return:
         """
+        email = get_jwt_identity()
         payload = update_timestamp(prefix="tasks.$")
         payload["tasks.$.meta.is_archived"], payload["tasks.$.meta.is_deleted"] = False, False
-        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id)},
+        result = base_obj.update(COLLECTIONS['ROOMS'], {'_id': ObjectId(taskroom_id), "tasks._id": ObjectId(task_id), "users": email},
                                  {"$set": payload})
         print(payload, result)

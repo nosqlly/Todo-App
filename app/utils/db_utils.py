@@ -32,9 +32,10 @@ class Base(object):
     def update(self, collection_name, query, value):
         try:
             if isinstance(value, list):
-                self.mongo_db[collection_name].update_many(query, value)
+                result = self.mongo_db[collection_name].update_many(query, value)
             else:
-                self.mongo_db[collection_name].update_one(query, value)
+                result = self.mongo_db[collection_name].update_one(query, value)
+            return result
         except Exception as e:
             print('Exception while updating MongoDB', e)
             logger.debug('Exception while updating MongoDB')

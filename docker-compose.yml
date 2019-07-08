@@ -14,5 +14,32 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: password
       MONGO_INITDB_DATABASE: todo_inventory
 
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    volumes:
+      - 'redis_data:/var/redis/data'
+
+  flask_app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    environment:
+      - REDIS_HOST=redis
+      - DB_HOST=mongo
+      - MAIL_USER=development.service@gmail.com
+      - MAIL_PASSWORD=Password@123
+    depends_on:
+      - redis
+      - mongo
+
 volumes:
   db-data:
+  redis_data:
