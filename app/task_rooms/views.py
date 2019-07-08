@@ -1,7 +1,7 @@
 from flask_restplus import Namespace, Resource, marshal
 from flask_jwt_extended import jwt_required
 from app import api
-from app.task_rooms.models import room_request, state_parser, room_response
+from app.task_rooms.models import room_request, state_parser, room_response, invite_user
 from app.task_rooms.service import TaskRoomService
 from app.common.models import auth_parser
 from flask_jwt_extended import get_jwt_identity
@@ -25,8 +25,9 @@ class Rooms(Resource):
         :return:
         """
         email = get_jwt_identity()
-        payload = api.payload
+        payload = marshal(api.payload, room_request)
         payload['users'] = [email]
+        payload['tasks'] = []
         taskroom_service.create_room(payload)
         return {'Message': "Room created successfully"}
 
@@ -67,7 +68,7 @@ class RoomOperations(Resource):
         :param id:
         :return:
         """
-        payload = api.payload
+        payload = marshal(api.payload, room_request)
         taskroom_service.update_room(id, payload)
         return {'Message': "Room updated successfully"}
 
@@ -123,3 +124,40 @@ class RoomOperations(Resource):
         """
         taskroom_service.change_status(id)
         return {'Message': "Room status changed to Active"}
+
+
+@taskrooms_ns.expect(auth_parser)
+@taskrooms_ns.route('/invite/<string:id>')
+class RoomOperations(Resource):
+    """
+    Invite user to Task room
+    """
+    @taskrooms_ns.expect(invite_user)
+    @jwt_required
+    def put(self, id):
+        """
+        Invite user to Task room
+        :param id:
+        :return:
+        """
+        payload = marshal(api.payload, invite_user)
+        taskroom_service.invite_user(id, payload['email'])
+        return {'Message': "User Added to the Task Room"}
+
+
+@taskrooms_ns.expect(auth_parser)
+@taskrooms_ns.route('/exit/<string:id>')
+class RoomOperations(Resource):
+    """
+    Exit from a Task room
+    """
+    @jwt_required
+    def delete(self, id):
+        """
+        Exit from a Task room
+        :param id:
+        :return:
+        """
+        email = get_jwt_identity()
+        taskroom_service.exit_task_room(id, email)
+        return {'Message': "Exited from the Task Room"}

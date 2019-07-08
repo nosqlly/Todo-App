@@ -1,4 +1,6 @@
 from bson import ObjectId
+from flask_restplus import abort
+from flask_jwt_extended import get_jwt_identity
 from app.task_rooms.models import room_request, room_record
 from app.utils.db_utils import Base
 from app.utils.helper import custom_marshal, update_timestamp
@@ -43,7 +45,11 @@ class TaskRoomService(object):
         :return:
         """
         payload = custom_marshal(payload, room_request, 'update')
-        base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)}, {"$set": payload})
+        email = get_jwt_identity()
+        result = base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id), "meta.created_by": email}, {"$set": payload})
+        print(result.modified_count)
+        if not result.modified_count:
+            abort(401, "Unauthorized")
 
     def archive_room(self, id):
         """
@@ -52,9 +58,12 @@ class TaskRoomService(object):
         :return:
         """
         payload = update_timestamp()
+        email = get_jwt_identity()
         payload["meta.is_archived"], payload["meta.is_deleted"] = True, False
-        base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
+        result = base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id), "meta.created_by": email},
                         {"$set": payload})
+        if not result.modified_count:
+            abort(401, "Unauthorized")
 
     def delete_room(self, id):
         """
@@ -63,9 +72,12 @@ class TaskRoomService(object):
         :return:
         """
         payload = update_timestamp()
+        email = get_jwt_identity()
         payload["meta.is_archived"], payload["meta.is_deleted"] = False, True
-        base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
+        result = base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id), "meta.created_by": email},
                         {"$set": payload})
+        if not result.modified_count:
+            abort(401, "Unauthorized")
 
     def change_status(self, id):
         """
@@ -74,6 +86,39 @@ class TaskRoomService(object):
         :return:
         """
         payload = update_timestamp()
+        email = get_jwt_identity()
         payload["meta.is_archived"], payload["meta.is_deleted"] = False, False
-        base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
+        result = base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id), "meta.created_by": email},
                         {"$set": payload})
+        if not result.modified_count:
+            abort(401, "Unauthorized")
+
+    def invite_user(self, id, user_email):
+        """
+        Invite User to the task room
+        :param id:
+        :param payload:
+        :return:
+        """
+        email = get_jwt_identity()
+        count, records = base_obj.get(COLLECTIONS['USERS'], {'email': user_email, "meta.is_deleted": False})
+        if count == 1:
+            if records[0]['is_active']:
+                result = base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id), "meta.created_by": email},
+                                {"$push": {'users': user_email}})
+                if not result.modified_count:
+                    abort(401, "Unauthorized")
+            else:
+                abort(401, "Email ID is not active")
+        else:
+            abort(404, "Email ID does not exist")
+
+    def exit_task_room(self, id, email):
+        """
+        Exit from a task room
+        :param id:
+        :param email:
+        :return:
+        """
+        base_obj.update(COLLECTIONS['ROOMS'], {"_id": ObjectId(id)},
+                        {"$pull": {'users': email}})
