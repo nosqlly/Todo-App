@@ -93,7 +93,7 @@ class TaskRoomService(object):
         if not result.modified_count:
             abort(401, "Unauthorized")
 
-    def invite_user(self, id, user_email):
+    def invite_user(self, id, email):
         """
         Invite User to the task room
         :param id:
