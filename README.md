@@ -36,3 +36,9 @@ Tutorial 3
 - Exit from a Task Room
 
 https://nosqlly.com/full-stack-tutorial-todo-app-react-flask-mongodb-part-3/
+
+Tutorial 4
+- Dockerize Flask Application
+- Fix security issues related to multi user application
+
+https://nosqlly.com/full-stack-tutorial-todo-app-react-flask-mongodb-part-4/
